@@ -1,0 +1,231 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Drive Copy Tool</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1a73e8;
+            margin-bottom: 10px;
+        }
+        .description {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        input[type="checkbox"] {
+            margin-right: 8px;
+        }
+        button {
+            background: #1a73e8;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #1557b0;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.processing {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .google-signin {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📁 Google Drive Copy Tool</h1>
+        <p class="description">Copy shared Google Drive folders to your account with custom naming and automatic branding.</p>
+
+        <div class="google-signin" id="googleSignIn">
+            <p>First, sign in with your Google account:</p>
+            <div id="g_id_onload"
+                 data-client_id="792934718499-rf2odo5otk06q5g8790er0t4ohts7joi.apps.googleusercontent.com"
+                 data-callback="handleCredentialResponse">
+            </div>
+            <div class="g_id_signin" data-type="standard"></div>
+        </div>
+
+        <form id="copyForm" style="display:none;">
+            <div class="form-group">
+                <label for="folderUrl">Shared Folder URL *</label>
+                <input type="text" id="folderUrl" required 
+                       placeholder="https://drive.google.com/drive/folders/...">
+            </div>
+
+            <div class="form-group">
+                <label for="targetName">Target Folder Name</label>
+                <input type="text" id="targetName" value="Copied Files">
+            </div>
+
+            <div class="form-group">
+                <label for="filePrefix">File Prefix</label>
+                <input type="text" id="filePrefix" value="Doc">
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="enableNumbering" checked>
+                    Enable File Numbering (001, 002, ...)
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="processSubfolders" checked>
+                    Process Subfolders Recursively
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label for="brandingPdfId">Branding PDF ID (Optional)</label>
+                <input type="text" id="brandingPdfId" 
+                       placeholder="Google Drive file ID">
+                <small style="color:#666;">Leave empty to skip branding PDF distribution</small>
+            </div>
+
+            <div class="form-group">
+                <label for="maxFileSize">Max File Size (MB)</label>
+                <input type="number" id="maxFileSize" value="100" min="1" max="1000">
+            </div>
+
+            <button type="submit" id="submitBtn">Start Copying</button>
+        </form>
+
+        <div id="status" class="status"></div>
+    </div>
+
+    <script>
+        let accessToken = null;
+        const N8N_WEBHOOK_URL = 'https://n8n.coolify.grwebdevs.com/form/public-gdrive-copy';
+
+        // Handle Google Sign-In
+        function handleCredentialResponse(response) {
+            // Decode JWT to get access token
+            // In production, exchange this for an access token via your backend
+            accessToken = response.credential;
+
+            document.getElementById('googleSignIn').innerHTML = 
+                '<p style="color:green;">✓ Signed in successfully!</p>';
+            document.getElementById('copyForm').style.display = 'block';
+        }
+
+        // Handle form submission
+        document.getElementById('copyForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submitBtn');
+            const status = document.getElementById('status');
+
+            submitBtn.disabled = true;
+            status.className = 'status processing';
+            status.style.display = 'block';
+            status.textContent = 'Processing your request... This may take a few minutes.';
+
+            const formData = {
+                access_token: accessToken,
+                shared_folder_url: document.getElementById('folderUrl').value,
+                target_folder_name: document.getElementById('targetName').value,
+                file_prefix: document.getElementById('filePrefix').value,
+                add_numbering: document.getElementById('enableNumbering').checked,
+                process_subfolders: document.getElementById('processSubfolders').checked,
+                branding_pdf_id: document.getElementById('brandingPdfId').value,
+                max_file_size_mb: parseInt(document.getElementById('maxFileSize').value)
+            };
+
+            try {
+                const response = await fetch(N8N_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.status === 'success') {
+                    status.className = 'status success';
+                    status.innerHTML = `
+                        <strong>✓ Success!</strong><br>
+                        Files copied: ${result.files_copied}<br>
+                        Folders processed: ${result.folders_processed}<br>
+                        <a href="${result.target_folder_url}" target="_blank">Open target folder</a>
+                    `;
+                } else {
+                    throw new Error(result.message || 'Processing failed');
+                }
+            } catch (error) {
+                status.className = 'status error';
+                status.innerHTML = `<strong>✗ Error:</strong> ${error.message}`;
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
