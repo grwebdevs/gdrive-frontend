@@ -1,413 +1,227 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Drive Copy Tool</title>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .container {
-            background: white;
-            max-width: 600px;
-            width: 100%;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-        }
-
-        h1 {
-            color: #667eea;
-            margin-bottom: 10px;
-            font-size: 28px;
-        }
-
-        .description {
-            color: #666;
-            margin-bottom: 30px;
-            line-height: 1.6;
-        }
-
-        .google-signin {
-            margin-bottom: 30px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            text-align: center;
-        }
-
-        .google-signin p {
-            margin-bottom: 15px;
-            color: #333;
-            font-weight: 500;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #333;
-            font-size: 14px;
-        }
-
-        input[type="text"],
-        input[type="number"],
-        select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-
-        input:focus,
-        select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            padding: 12px;
-            background: #f8f9fa;
-            border-radius: 8px;
-        }
-
-        input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            margin-right: 10px;
-            cursor: pointer;
-        }
-
-        .checkbox-group label {
-            margin: 0;
-            font-weight: 500;
-            cursor: pointer;
-        }
-
-        button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px 30px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            width: 100%;
-            margin-top: 10px;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .status {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 8px;
-            display: none;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .status.success {
-            background: #d4edda;
-            color: #155724;
-            border: 2px solid #c3e6cb;
-        }
-
-        .status.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 2px solid #f5c6cb;
-        }
-
-        .status.processing {
-            background: #d1ecf1;
-            color: #0c5460;
-            border: 2px solid #bee5eb;
-        }
-
-        .status strong {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .status a {
-            color: inherit;
-            font-weight: bold;
-            text-decoration: underline;
-        }
-
-        small {
-            color: #999;
-            font-size: 12px;
-            display: block;
-            margin-top: 5px;
-        }
-
-        .signed-in-info {
-            background: #d4edda;
-            padding: 15px;
-            border-radius: 8px;
-            color: #155724;
-            text-align: center;
-        }
-
-        .loader {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Google Drive Copy Tool</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{
+      font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+      background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+      min-height:100vh;
+      padding:20px;
+      display:flex;
+      align-items:center;
+      justify-content:center
+    }
+    .container{
+      background:#fff;
+      max-width:640px;
+      width:100%;
+      padding:40px;
+      border-radius:15px;
+      box-shadow:0 10px 40px rgba(0,0,0,.2)
+    }
+    h1{color:#667eea;margin-bottom:10px;font-size:28px}
+    .description{color:#555;margin-bottom:30px;line-height:1.6}
+    .google-signin{margin-bottom:30px;padding:20px;background:#f8f9fa;border-radius:10px;text-align:center}
+    .google-signin p{margin-bottom:15px;color:#333;font-weight:500}
+    .form-group{margin-bottom:18px}
+    label{display:block;margin-bottom:6px;font-weight:600;color:#333;font-size:14px}
+    input[type=text],input[type=number]{
+      width:100%;
+      padding:12px;
+      border:2px solid #e0e0e0;
+      border-radius:8px;
+      font-size:14px;
+      transition:border-color .3s
+    }
+    input:focus{outline:none;border-color:#667eea}
+    .checkbox-group{
+      display:flex;
+      align-items:center;
+      padding:12px;
+      background:#f8f9fa;
+      border-radius:8px
+    }
+    input[type=checkbox]{width:20px;height:20px;margin-right:10px;cursor:pointer}
+    button{
+      background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+      color:#fff;
+      padding:15px 30px;
+      border:none;
+      border-radius:8px;
+      cursor:pointer;
+      font-size:16px;
+      font-weight:600;
+      width:100%;
+      margin-top:8px;
+      transition:all .2s
+    }
+    button:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(102,126,234,.4)}
+    button:disabled{background:#ccc;cursor:not-allowed;transform:none}
+    .status{
+      margin-top:20px;
+      padding:15px;
+      border-radius:8px;
+      display:none;
+      animation:fadeIn .3s ease
+    }
+    @keyframes fadeIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+    .status.success{background:#d4edda;color:#155724;border:2px solid #c3e6cb}
+    .status.error{background:#f8d7da;color:#721c24;border:2px solid #f5c6cb}
+    .status.processing{background:#d1ecf1;color:#0c5460;border:2px solid #bee5eb}
+    .signed-in-info{background:#d4edda;padding:15px;border-radius:8px;color:#155724;text-align:center}
+    .loader{
+      border:3px solid #f3f3f3;
+      border-top:3px solid #667eea;
+      border-radius:50%;
+      width:40px;height:40px;
+      animation:spin 1s linear infinite;
+      margin:15px auto
+    }
+    @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>📁 Google Drive Copy Tool</h1>
-        <p class="description">Copy shared Google Drive folders to your account with automatic file renaming, subfolder processing, and optional branding PDF distribution.</p>
-
-        <div class="google-signin" id="googleSignIn">
-            <p>First, sign in with your Google account:</p>
-            <div id="g_id_onload"
-                 data-client_id="YOUR_GOOGLE_CLIENT_ID"
-                 data-callback="handleCredentialResponse"
-                 data-auto_prompt="false">
-            </div>
-            <div class="g_id_signin" 
-                 data-type="standard"
-                 data-size="large"
-                 data-theme="outline"
-                 data-text="sign_in_with"
-                 data-shape="rectangular"
-                 data-logo_alignment="left">
-            </div>
-        </div>
-
-        <form id="copyForm" style="display:none;">
-            <div class="form-group">
-                <label for="folderUrl">📂 Shared Folder URL *</label>
-                <input type="text" id="folderUrl" required 
-                       placeholder="https://drive.google.com/drive/folders/...">
-                <small>Paste the full URL of the shared Google Drive folder</small>
-            </div>
-
-            <div class="form-group">
-                <label for="targetName">📁 Target Folder Name</label>
-                <input type="text" id="targetName" value="Copied Files">
-                <small>Name for the new folder in your Drive</small>
-            </div>
-
-            <div class="form-group">
-                <label for="filePrefix">🏷️ File Prefix</label>
-                <input type="text" id="filePrefix" value="Doc">
-                <small>Prefix to add to renamed files</small>
-            </div>
-
-            <div class="form-group">
-                <div class="checkbox-group">
-                    <input type="checkbox" id="enableNumbering" checked>
-                    <label for="enableNumbering">🔢 Enable File Numbering (001, 002, ...)</label>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <div class="checkbox-group">
-                    <input type="checkbox" id="processSubfolders" checked>
-                    <label for="processSubfolders">📂 Process Subfolders Recursively</label>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="brandingPdfId">📄 Branding PDF ID (Optional)</label>
-                <input type="text" id="brandingPdfId" 
-                       placeholder="Google Drive file ID of branding PDF">
-                <small>Leave empty to skip. PDF will be copied to all folders.</small>
-            </div>
-
-            <div class="form-group">
-                <label for="maxFileSize">📏 Max File Size (MB)</label>
-                <input type="number" id="maxFileSize" value="100" min="1" max="1000">
-                <small>Files larger than this will be skipped</small>
-            </div>
-
-            <button type="submit" id="submitBtn">🚀 Start Copying</button>
-        </form>
-
-        <div id="status" class="status"></div>
+  <div class="container">
+    <h1>📁 Google Drive Copy Tool</h1>
+    <p class="description">
+      Copy shared Google Drive folders to your account with automatic file renaming, recursive subfolder copying, and optional branding PDF.
+    </p>
+    <div id="googleSignIn" class="google-signin">
+      <p>Sign in with your Google account to continue:</p>
+      <button id="authBtn">Sign in with Google Drive</button>
     </div>
 
-    <script>
-        let accessToken = null;
+    <form id="copyForm" style="display:none;">
+      <div class="form-group">
+        <label for="folderUrl">📂 Shared Folder URL *</label>
+        <input id="folderUrl" type="text" required placeholder="https://drive.google.com/drive/folders/..." />
+        <small>Paste the shared folder URL</small>
+      </div>
 
-        // ⚠️ IMPORTANT: Replace this with your actual n8n webhook URL
-        const N8N_WEBHOOK_URL = 'https://n8n.coolify.grwebdevs.com/form/public-gdrive-copy';
+      <div class="form-group">
+        <label for="targetName">📁 Target Folder Name</label>
+        <input id="targetName" type="text" value="Copied Files" />
+      </div>
 
-        // Handle Google Sign-In
-        function handleCredentialResponse(response) {
-            // Extract access token from the credential response
-            // Note: Google Identity Services returns an ID token, not an access token
-            // We need to exchange this for an access token
+      <div class="form-group">
+        <label for="filePrefix">🏷️ File Prefix</label>
+        <input id="filePrefix" type="text" value="Doc" />
+      </div>
 
-            // For now, we'll use a workaround with Google's tokeninfo endpoint
-            // In production, you should implement proper OAuth flow
+      <div class="checkbox-group">
+        <input id="enableNumbering" type="checkbox" checked />
+        <label for="enableNumbering">🔢 Enable File Numbering (001, 002…)</label>
+      </div>
 
-            fetch('https://oauth2.googleapis.com/tokeninfo?id_token=' + response.credential)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.email) {
-                        // Token is valid, but we need an access token for Drive API
-                        // Show form and store the credential
-                        accessToken = response.credential;
+      <div class="checkbox-group">
+        <input id="processSubfolders" type="checkbox" checked />
+        <label for="processSubfolders">📂 Process Subfolders Recursively</label>
+      </div>
 
-                        document.getElementById('googleSignIn').innerHTML = 
-                            '<div class="signed-in-info">✓ Signed in as: ' + data.email + '</div>';
-                        document.getElementById('copyForm').style.display = 'block';
+      <div class="form-group">
+        <label for="brandingPdfId">📄 Branding PDF ID (Optional)</label>
+        <input id="brandingPdfId" type="text" placeholder="Google Drive file ID of branding PDF" />
+      </div>
 
-                        // Note: For production, implement proper OAuth to get access token
-                        showStatus('info', 'Note: For full functionality, you need to implement proper OAuth flow to get Google Drive access token. This demo uses ID token.');
-                    }
-                })
-                .catch(error => {
-                    showStatus('error', 'Failed to validate Google sign-in: ' + error.message);
-                });
-        }
+      <div class="form-group">
+        <label for="maxFileSize">📏 Max File Size (MB)</label>
+        <input id="maxFileSize" type="number" value="100" min="1" max="1000" />
+      </div>
 
-        // Alternative: Direct OAuth flow (recommended for production)
-        function initGoogleOAuth() {
-            const client = google.accounts.oauth2.initTokenClient({
-                client_id: '792934718499-rf2odo5otk06q5g8790er0t4ohts7joi.apps.googleusercontent.com',
-                scope: 'https://www.googleapis.com/auth/drive',
-                callback: (response) => {
-                    if (response.access_token) {
-                        accessToken = response.access_token;
-                        document.getElementById('googleSignIn').innerHTML = 
-                            '<div class="signed-in-info">✓ Signed in successfully! Drive access granted.</div>';
-                        document.getElementById('copyForm').style.display = 'block';
-                    }
-                },
-            });
+      <button id="submitBtn" type="submit">🚀 Start Copying</button>
+    </form>
 
-            // Add button to trigger OAuth
-            const oauthBtn = document.createElement('button');
-            oauthBtn.textContent = 'Sign in with Google Drive';
-            oauthBtn.onclick = () => client.requestAccessToken();
-            document.getElementById('googleSignIn').appendChild(oauthBtn);
-        }
+    <div id="status" class="status"></div>
+  </div>
 
-        // Handle form submission
-        document.getElementById('copyForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+  <script>
+    // === CONFIG ===
+    const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"; // <-- replace
+    const N8N_WEBHOOK_URL = "https://n8n.coolify.grwebdevs.com/webhook/gdrive-copy"; // <-- replace
 
-            if (!accessToken) {
-                showStatus('error', 'Please sign in with Google first.');
-                return;
-            }
+    let accessToken = null;
+    let tokenClient;
 
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
+    function showStatus(type, msg) {
+      const s = document.getElementById("status");
+      s.className = "status " + type;
+      s.innerHTML = msg;
+      s.style.display = "block";
+    }
 
-            showStatus('processing', 'Processing your request... This may take a few minutes depending on folder size.');
+    function initOAuth() {
+      tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: GOOGLE_CLIENT_ID,
+        scope: "https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/drive.file",
+        callback: (resp) => {
+          if (resp.error) {
+            showStatus("error", "Authentication failed: " + resp.error);
+            return;
+          }
+          accessToken = resp.access_token;
+          document.getElementById("googleSignIn").innerHTML =
+            '<div class="signed-in-info">✓ Signed in! Drive access granted.</div>';
+          document.getElementById("copyForm").style.display = "block";
+        },
+      });
+    }
 
-            // Show loader
-            const statusDiv = document.getElementById('status');
-            statusDiv.innerHTML += '<div class="loader"></div>';
+    window.onload = () => {
+      if (window.google && google.accounts) initOAuth();
+      else showStatus("error","Google Identity Services failed to load.");
+    };
 
-            const formData = {
-                access_token: accessToken,
-                shared_folder_url: document.getElementById('folderUrl').value,
-                target_folder_name: document.getElementById('targetName').value,
-                file_prefix: document.getElementById('filePrefix').value,
-                add_numbering: document.getElementById('enableNumbering').checked ? 'true' : 'false',
-                process_subfolders: document.getElementById('processSubfolders').checked ? 'true' : 'false',
-                branding_pdf_id: document.getElementById('brandingPdfId').value,
-                max_file_size_mb: parseInt(document.getElementById('maxFileSize').value)
-            };
+    document.getElementById("authBtn").addEventListener("click", () => {
+      if (!tokenClient) return showStatus("error","Google client not ready. Refresh page.");
+      tokenClient.requestAccessToken({ prompt: "consent" });
+    });
 
-            try {
-                const response = await fetch(N8N_WEBHOOK_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData)
-                });
+    document.getElementById("copyForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!accessToken) return showStatus("error","Please sign in first.");
+      const btn = document.getElementById("submitBtn");
+      btn.disabled = true;
+      showStatus("processing","Processing request...");
 
-                const result = await response.json();
+      const formData = {
+        access_token: accessToken,
+        shared_folder_url: folderUrl.value.trim(),
+        target_folder_name: targetName.value.trim(),
+        file_prefix: filePrefix.value.trim(),
+        add_numbering: enableNumbering.checked,
+        process_subfolders: processSubfolders.checked,
+        branding_pdf_id: brandingPdfId.value.trim(),
+        max_file_size_mb: parseInt(maxFileSize.value || 100)
+      };
 
-                if (result.status === 'success') {
-                    showStatus('success', `
-                        <strong>✓ Success!</strong><br>
-                        Files copied: ${result.files_copied || 0}<br>
-                        Folders processed: ${result.folders_processed || 0}<br>
-                        ${result.branding_pdf_added ? 'Branding PDF distributed ✓<br>' : ''}
-                        <a href="${result.target_folder_url}" target="_blank">📁 Open target folder</a>
-                    `);
-                } else {
-                    throw new Error(result.message || 'Processing failed');
-                }
-            } catch (error) {
-                showStatus('error', `<strong>✗ Error:</strong> ${error.message}`);
-            } finally {
-                submitBtn.disabled = false;
-            }
+      try {
+        const res = await fetch(N8N_WEBHOOK_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData)
         });
-
-        function showStatus(type, message) {
-            const statusDiv = document.getElementById('status');
-            statusDiv.className = 'status ' + type;
-            statusDiv.innerHTML = message;
-            statusDiv.style.display = 'block';
-        }
-    </script>
+        const result = await res.json();
+        if (result.status === "success") {
+          showStatus(
+            "success",
+            `<strong>✓ Success!</strong><br>
+             Files copied: ${result.files_copied || 0}<br>
+             Folders processed: ${result.folders_processed || 0}<br>
+             ${result.branding_pdf_added?"Branding PDF added✅<br>":""}
+             <a target="_blank" href="${result.target_folder_url}">📁 Open copied folder</a>`
+          );
+        } else throw new Error(result.message || "Processing failed");
+      } catch (err) {
+        showStatus("error","✗ Error: " + err.message);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  </script>
 </body>
 </html>
