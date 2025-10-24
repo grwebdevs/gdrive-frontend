@@ -290,7 +290,7 @@
         let accessToken = null;
 
         // ⚠️ IMPORTANT: Replace this with your actual n8n webhook URL
-        const N8N_WEBHOOK_URL = 'https://n8n.coolify.grwebdevs.com/webhook-test/public-gdrive-copy';
+        const N8N_WEBHOOK_URL = 'https://n8n.coolify.grwebdevs.com/form/public-gdrive-copy';
 
         // Handle Google Sign-In
         function handleCredentialResponse(response) {
@@ -325,7 +325,7 @@
         // Alternative: Direct OAuth flow (recommended for production)
         function initGoogleOAuth() {
             const client = google.accounts.oauth2.initTokenClient({
-                client_id: 'YOUR_GOOGLE_CLIENT_ID',
+                client_id: '792934718499-rf2odo5otk06q5g8790er0t4ohts7joi.apps.googleusercontent.com',
                 scope: 'https://www.googleapis.com/auth/drive',
                 callback: (response) => {
                     if (response.access_token) {
