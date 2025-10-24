@@ -219,7 +219,7 @@
         <div class="google-signin" id="googleSignIn">
             <p>First, sign in with your Google account:</p>
             <div id="g_id_onload"
-                 data-client_id="792934718499-rf2odo5otk06q5g8790er0t4ohts7joi.apps.googleusercontent.com"
+                 data-client_id="YOUR_GOOGLE_CLIENT_ID"
                  data-callback="handleCredentialResponse"
                  data-auto_prompt="false">
             </div>
@@ -290,7 +290,7 @@
         let accessToken = null;
 
         // ⚠️ IMPORTANT: Replace this with your actual n8n webhook URL
-        const N8N_WEBHOOK_URL = 'https://n8n.coolify.grwebdevs.com/form/public-gdrive-copy';
+        const N8N_WEBHOOK_URL = 'https://n8n.coolify.grwebdevs.com/webhook-test/public-gdrive-copy';
 
         // Handle Google Sign-In
         function handleCredentialResponse(response) {
