@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Google Drive Copy Tool</title>
+  <title>Google Drive Copy Tool - FIXED</title>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
@@ -44,7 +44,8 @@
       align-items:center;
       padding:12px;
       background:#f8f9fa;
-      border-radius:8px
+      border-radius:8px;
+      margin-bottom:15px
     }
     input[type=checkbox]{width:20px;height:20px;margin-right:10px;cursor:pointer}
     button{
@@ -74,6 +75,7 @@
     .status.error{background:#f8d7da;color:#721c24;border:2px solid #f5c6cb}
     .status.processing{background:#d1ecf1;color:#0c5460;border:2px solid #bee5eb}
     .signed-in-info{background:#d4edda;padding:15px;border-radius:8px;color:#155724;text-align:center}
+    small{color:#999;font-size:12px;display:block;margin-top:5px}
     .loader{
       border:3px solid #f3f3f3;
       border-top:3px solid #667eea;
@@ -89,60 +91,60 @@
   <div class="container">
     <h1>📁 Google Drive Copy Tool</h1>
     <p class="description">
-      Copy shared Google Drive folders to your account with automatic file renaming, recursive subfolder copying, and optional branding PDF.
+      Copy shared Google Drive folders to your account with automatic file renaming, recursive subfolder copying, and optional branding PDF.
     </p>
     <div id="googleSignIn" class="google-signin">
       <p>Sign in with your Google account to continue:</p>
-      <button id="authBtn">Sign in with Google Drive</button>
+      <button id="authBtn">Sign in with Google Drive</button>
     </div>
 
     <form id="copyForm" style="display:none;">
       <div class="form-group">
-        <label for="folderUrl">📂 Shared Folder URL *</label>
+        <label for="folderUrl">📂 Shared Folder URL *</label>
         <input id="folderUrl" type="text" required placeholder="https://drive.google.com/drive/folders/..." />
-        <small>Paste the shared folder URL</small>
+        <small>Paste the shared folder URL</small>
       </div>
 
       <div class="form-group">
-        <label for="targetName">📁 Target Folder Name</label>
-        <input id="targetName" type="text" value="Copied Files" />
+        <label for="targetName">📁 Target Folder Name</label>
+        <input id="targetName" type="text" value="Copied Files" />
       </div>
 
       <div class="form-group">
-        <label for="filePrefix">🏷️ File Prefix</label>
+        <label for="filePrefix">🏷️ File Prefix</label>
         <input id="filePrefix" type="text" value="Doc" />
       </div>
 
       <div class="checkbox-group">
         <input id="enableNumbering" type="checkbox" checked />
-        <label for="enableNumbering">🔢 Enable File Numbering (001, 002…)</label>
+        <label for="enableNumbering">🔢 Enable File Numbering (001, 002…)</label>
       </div>
 
       <div class="checkbox-group">
         <input id="processSubfolders" type="checkbox" checked />
-        <label for="processSubfolders">📂 Process Subfolders Recursively</label>
+        <label for="processSubfolders">📂 Process Subfolders Recursively</label>
       </div>
 
       <div class="form-group">
-        <label for="brandingPdfId">📄 Branding PDF ID (Optional)</label>
-        <input id="brandingPdfId" type="text" placeholder="Google Drive file ID of branding PDF" />
+        <label for="brandingPdfId">📄 Branding PDF ID (Optional)</label>
+        <input id="brandingPdfId" type="text" placeholder="Google Drive file ID of branding PDF" />
       </div>
 
       <div class="form-group">
-        <label for="maxFileSize">📏 Max File Size (MB)</label>
+        <label for="maxFileSize">📏 Max File Size (MB)</label>
         <input id="maxFileSize" type="number" value="100" min="1" max="1000" />
       </div>
 
-      <button id="submitBtn" type="submit">🚀 Start Copying</button>
+      <button id="submitBtn" type="submit">🚀 Start Copying</button>
     </form>
 
     <div id="status" class="status"></div>
   </div>
 
   <script>
-    // === CONFIG ===
-    const GOOGLE_CLIENT_ID = "792934718499-rf2odo5otk06q5g8790er0t4ohts7joi.apps.googleusercontent.com"; // <-- replace
-    const N8N_WEBHOOK_URL = "https://n8n.coolify.grwebdevs.com/form/public-gdrive-copy"; // <-- replace
+    // ⚠️ REPLACE THESE VALUES:
+    const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com";
+    const N8N_WEBHOOK_URL = "https://n8n.coolify.grwebdevs.com/webhook/gdrive-copy";
 
     let accessToken = null;
     let tokenClient;
@@ -161,63 +163,102 @@
         callback: (resp) => {
           if (resp.error) {
             showStatus("error", "Authentication failed: " + resp.error);
+            console.error("OAuth error:", resp);
             return;
           }
           accessToken = resp.access_token;
+          console.log("✅ Access token received");
           document.getElementById("googleSignIn").innerHTML =
-            '<div class="signed-in-info">✓ Signed in! Drive access granted.</div>';
+            '<div class="signed-in-info">✓ Signed in! Drive access granted.</div>';
           document.getElementById("copyForm").style.display = "block";
         },
       });
     }
 
     window.onload = () => {
-      if (window.google && google.accounts) initOAuth();
-      else showStatus("error","Google Identity Services failed to load.");
+      if (window.google && google.accounts) {
+        console.log("✅ Google Identity Services loaded");
+        initOAuth();
+      } else {
+        showStatus("error","Google Identity Services failed to load. Check internet connection.");
+      }
     };
 
     document.getElementById("authBtn").addEventListener("click", () => {
-      if (!tokenClient) return showStatus("error","Google client not ready. Refresh page.");
+      if (!tokenClient) {
+        showStatus("error","Google client not ready. Refresh page.");
+        return;
+      }
+      console.log("🔑 Requesting access token...");
       tokenClient.requestAccessToken({ prompt: "consent" });
     });
 
     document.getElementById("copyForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      if (!accessToken) return showStatus("error","Please sign in first.");
+
+      if (!accessToken) {
+        showStatus("error","Please sign in first.");
+        return;
+      }
+
       const btn = document.getElementById("submitBtn");
       btn.disabled = true;
-      showStatus("processing","Processing request...");
+      showStatus("processing","Processing request... Please wait.");
 
-      const formData = {
+      // FIXED: Proper data structure that matches what n8n expects
+      const payload = {
         access_token: accessToken,
-        shared_folder_url: folderUrl.value.trim(),
-        target_folder_name: targetName.value.trim(),
-        file_prefix: filePrefix.value.trim(),
-        add_numbering: enableNumbering.checked,
-        process_subfolders: processSubfolders.checked,
-        branding_pdf_id: brandingPdfId.value.trim(),
-        max_file_size_mb: parseInt(maxFileSize.value || 100)
+        shared_folder_url: document.getElementById("folderUrl").value.trim(),
+        target_folder_name: document.getElementById("targetName").value.trim(),
+        file_prefix: document.getElementById("filePrefix").value.trim(),
+        add_numbering: document.getElementById("enableNumbering").checked,
+        process_subfolders: document.getElementById("processSubfolders").checked,
+        branding_pdf_id: document.getElementById("brandingPdfId").value.trim(),
+        max_file_size_mb: parseInt(document.getElementById("maxFileSize").value || "100")
       };
+
+      console.log("📤 Sending payload to n8n:", JSON.stringify(payload, null, 2));
 
       try {
         const res = await fetch(N8N_WEBHOOK_URL, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData)
+          headers: { 
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify(payload)
         });
-        const result = await res.json();
+
+        console.log("📥 Response status:", res.status);
+
+        const contentType = res.headers.get("content-type");
+        let result;
+
+        if (contentType && contentType.includes("application/json")) {
+          result = await res.json();
+        } else {
+          const text = await res.text();
+          console.error("Non-JSON response:", text);
+          throw new Error("Server returned non-JSON response: " + text.substring(0, 100));
+        }
+
+        console.log("📥 Response data:", result);
+
         if (result.status === "success") {
           showStatus(
             "success",
-            `<strong>✓ Success!</strong><br>
-             Files copied: ${result.files_copied || 0}<br>
-             Folders processed: ${result.folders_processed || 0}<br>
-             ${result.branding_pdf_added?"Branding PDF added✅<br>":""}
-             <a target="_blank" href="${result.target_folder_url}">📁 Open copied folder</a>`
+            `<strong>✓ Success!</strong><br>
+             Files copied: ${result.files_copied || 0}<br>
+             Folders processed: ${result.folders_processed || 0}<br>
+             ${result.branding_pdf_added?"Branding PDF added ✅<br>":""}
+             <a target="_blank" href="${result.target_folder_url}">📁 Open copied folder</a>`
           );
-        } else throw new Error(result.message || "Processing failed");
+        } else {
+          throw new Error(result.message || result.error_code || "Processing failed");
+        }
       } catch (err) {
-        showStatus("error","✗ Error: " + err.message);
+        console.error("❌ Error:", err);
+        showStatus("error","✗ Error: " + err.message);
       } finally {
         btn.disabled = false;
       }
